@@ -1,0 +1,596 @@
+---
+openapi: 3.0.0
+info:
+  title: League Manegment API
+  description: This is a simple API for our football legue manegment system
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/liorsavc/League_Manegment/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: https://virtserver.swaggerhub.com/liorsavc/Register/1.0.0
+  description: SwaggerHub API Auto Mocking
+paths:
+  /auth/register:
+    post:
+      tags:
+      - auth
+      summary: register new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+        required: true
+      responses:
+        "201":
+          description: New user added
+        "409":
+          description: User name taken
+        "500":
+          description: server error at register new user
+  /auth/logout:
+    post:
+      tags:
+      - auth
+      summary: Logout from system
+      responses:
+        "200":
+          description: logout succeeded
+  /auth/login:
+    post:
+      tags:
+      - auth
+      summary: Login into the system
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login'
+        required: true
+      responses:
+        "200":
+          description: Successful Login
+        "401":
+          description: user name or password incorrect
+  /players:
+    get:
+      tags:
+      - player
+      summary: get all players data
+      responses:
+        "200":
+          description: returns data about all players
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/playersArray'
+        "404":
+          description: players not found
+  /players/preview/{playerId}:
+    get:
+      tags:
+      - player
+      summary: get the data about the player for short preview
+      parameters:
+      - name: playerId
+        in: path
+        description: Numeric ID of the player to get his information
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 550
+      responses:
+        "200":
+          description: returns data about the player
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/playerPreview'
+        "404":
+          description: player id not found
+  /players/fullDetails/{playerId}:
+    get:
+      tags:
+      - player
+      summary: get the full detailed data about the player to preview
+      parameters:
+      - name: playerId
+        in: path
+        description: Numeric ID of the player to get his information
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 550
+      responses:
+        "200":
+          description: returns data about the player
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/playerFullDetails'
+        "404":
+          description: player id not found
+  /league/getDetails:
+    get:
+      tags:
+      - league
+      summary: get league data
+      responses:
+        "200":
+          description: returns data about the league
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/league'
+        "404":
+          description: league not found
+  /league/addMatch:
+    post:
+      tags:
+      - league
+      summary: add match to database
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body'
+        required: true
+      responses:
+        "201":
+          description: Successfully added match to matches table in db
+        "403":
+          description: only association member can add matches
+  /league/updateMatchScore:
+    post:
+      tags:
+      - league
+      summary: update match result
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body_1'
+        required: true
+      responses:
+        "201":
+          description: Successfully changed match result
+        "403":
+          description: only association member can update matches score
+  /users/addMatch:
+    post:
+      tags:
+      - users
+      summary: add match id to favorite matches list
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body_2'
+        required: true
+      responses:
+        "201":
+          description: Successfully added match to favorite matches list
+        "404":
+          description: match id not found
+  /users/favoriteMatches:
+    get:
+      tags:
+      - users
+      summary: get the favorite matches of logged user
+      responses:
+        "200":
+          description: array of favorite matches
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/arrayOfMatches'
+        "404":
+          description: no favorite matches for this account
+  /users/removeMatch/{matchId}:
+    delete:
+      tags:
+      - users
+      summary: delete match id from favorite matches list
+      parameters:
+      - name: matchId
+        in: path
+        description: Numeric ID of the match to remove
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 7777
+      responses:
+        "201":
+          description: Successfully removed match from favorite matches list
+        "404":
+          description: match id not found
+  /users/addPlayer:
+    post:
+      tags:
+      - users
+      summary: add player id to favorite players list
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body_3'
+        required: true
+      responses:
+        "201":
+          description: Successfully added player to favorite players list
+  /users/favoritePlayers:
+    get:
+      tags:
+      - users
+      summary: get the favorite players of logged in user
+      responses:
+        "200":
+          description: array of favorite players
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/playersArray'
+        "404":
+          description: no favorite players for this user
+  /users/removePlayer/{playerId}:
+    delete:
+      tags:
+      - users
+      summary: delete player id from favorite players list
+      parameters:
+      - name: playerId
+        in: path
+        description: Numeric ID of the player to remove
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 3334
+      responses:
+        "201":
+          description: Successfully removed player from favorite players list
+        "404":
+          description: player id not found
+  /users/addTeam:
+    post:
+      tags:
+      - users
+      summary: add team id to favorite teams list
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body_4'
+        required: true
+      responses:
+        "201":
+          description: Successfully added team to favorite teams list
+  /users/removeTeam/{teamId}:
+    delete:
+      tags:
+      - users
+      summary: delete team id from favorite teams list
+      parameters:
+      - name: teamId
+        in: path
+        description: Numeric ID of the team to remove
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 3334
+      responses:
+        "201":
+          description: Successfully removed team from favorite teams list
+        "404":
+          description: team id not found
+  /users/favoriteTeams:
+    get:
+      tags:
+      - users
+      summary: get the favorite teams of logged user
+      responses:
+        "200":
+          description: array of favorite teams
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/teamsArray'
+        "404":
+          description: no favorite teams for this account
+  /teams:
+    get:
+      tags:
+      - team
+      summary: get all teams data
+      responses:
+        "200":
+          description: returns data about all teams
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/teamsArray'
+        "404":
+          description: teams not found
+  /teams/page/id/{teamId}:
+    get:
+      tags:
+      - team
+      summary: get the data about the team
+      parameters:
+      - name: teamId
+        in: path
+        description: Numeric ID of the team to get its information
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          example: 323
+      responses:
+        "200":
+          description: returns data about the team
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/teamDetails'
+        "404":
+          description: team id not found
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        username:
+          maxLength: 8
+          minLength: 3
+          type: string
+          example: exmplUsr
+        firstName:
+          type: string
+          example: exampleFirstName
+        lastName:
+          type: string
+          example: exampleLastName
+        country:
+          type: string
+        password:
+          maxLength: 10
+          minLength: 5
+          type: string
+          format: password
+          example: password
+        email:
+          type: string
+          format: email
+          example: example@gmail.com
+        profilePic:
+          type: string
+          format: URL
+          example: https://i.redd.it/i8t6f16vdd421.jpg
+        role:
+          type: string
+          example: fan
+    login:
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          format: password
+          example: admin
+    league:
+      type: object
+      properties:
+        leagueName:
+          type: string
+        seasonName:
+          type: string
+        stageName:
+          type: string
+        current_season_id:
+          type: integer
+        nextMatch:
+          $ref: '#/components/schemas/match'
+    match:
+      type: object
+      properties:
+        id:
+          type: integer
+        leagueName:
+          type: string
+        seasonName:
+          type: string
+        stageName:
+          type: string
+        homeTeam:
+          type: string
+        awayTeam:
+          type: string
+        date:
+          type: string
+          format: date
+        time:
+          type: string
+          format: time
+        refereeName:
+          type: string
+        lineReferee1:
+          type: string
+        lineReferee2:
+          type: string
+        stadium:
+          type: string
+        result:
+          $ref: '#/components/schemas/match_result'
+        matchEventCalendar:
+          type: array
+          items:
+            $ref: '#/components/schemas/event'
+    arrayOfMatches:
+      type: array
+      items:
+        $ref: '#/components/schemas/match'
+    playerPreview:
+      type: object
+      properties:
+        fullName:
+          type: string
+        activeTeam:
+          type: string
+        profilePicURL:
+          type: string
+          format: URL
+        position:
+          type: integer
+    playerFullDetails:
+      type: object
+      properties:
+        playerPreview:
+          $ref: '#/components/schemas/playerPreview'
+        common_name:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        nationality:
+          type: string
+        birthcountry:
+          type: string
+        height:
+          type: string
+        weight:
+          type: string
+      description: additional data the is not displayed in the preview about the player.
+    playersArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/playerPreview'
+    teamDetails:
+      type: object
+      properties:
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/playerPreview'
+        prevMatches:
+          type: array
+          items:
+            $ref: '#/components/schemas/match'
+        futureMatches:
+          type: array
+          items:
+            $ref: '#/components/schemas/match'
+        name:
+          type: string
+        logoURL:
+          type: string
+          format: url
+    teamsArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/teamDetails'
+    event:
+      type: object
+      properties:
+        eventId:
+          type: integer
+        matchId:
+          type: integer
+        teamName:
+          type: string
+        type:
+          type: string
+        playerName:
+          type: string
+        minInMatch:
+          type: integer
+    body:
+      type: object
+      properties:
+        leagueName:
+          type: string
+          example: SuperLiga
+        seasonName:
+          type: string
+          example: 2020/2021
+        stageName:
+          type: string
+          example: 0 phase
+        homeTeam:
+          type: string
+          example: homeTeamTest
+        awayTeam:
+          type: string
+          example: awayTeamTest
+        refereeName:
+          type: string
+          example: referee Name Test
+        lineReferee1:
+          type: string
+          example: line referee 1
+        lineReferee2:
+          type: string
+          example: line referee 2
+        stadium:
+          type: string
+          example: Terner Test
+        date:
+          type: string
+          example: 2021-01-01
+        time:
+          type: string
+          example: 21:00:00
+    body_1:
+      type: object
+      properties:
+        homeTeamScore:
+          type: integer
+          example: 1
+        awayTeamScore:
+          type: integer
+          example: 2
+        matchId:
+          type: integer
+          example: 11268
+    body_2:
+      type: object
+      properties:
+        matchId:
+          type: integer
+          example: 3992
+    body_3:
+      type: object
+      properties:
+        playerId:
+          type: integer
+          example: 172104
+    body_4:
+      type: object
+      properties:
+        teamId:
+          type: integer
+          example: 939
+    match_result:
+      type: object
+      properties:
+        homeScore:
+          type: integer
+        awayScore:
+          type: integer
